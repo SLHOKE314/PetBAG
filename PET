@@ -1,0 +1,179 @@
+// Pet class
+package PetBAG;
+
+import java.util.Scanner;
+
+public class PET {
+    protected static int dogSpaces = 30; // available spaces for dogs
+    protected static int catSpaces = 12;  // available spaces for cats
+    protected static int occupiedDogSpaces = 0; // count of occupied spaces for dogs
+    protected static int occupiedCatSpaces = 0; // count of occupied spaces for cats
+
+    public Scanner input = new Scanner(System.in); 
+    protected String petType;
+    protected String petName;
+    protected double petWeight;
+    protected int petAge;
+    protected int daysStay;
+    protected boolean isCheckedIn;
+    protected boolean grooming;
+    protected double amountDue; 
+
+    // Default constructor
+    public Pet() {
+        this("Unknown", "DEFAULT", -1, -1, false);
+    }
+
+    // Parameterized constructor
+    public Pet(String petType, String petName, int petAge, double petWeight, boolean grooming) {
+        this.petType = petType;
+        this.petName = petName;
+        this.petWeight = petWeight;
+        setPetAge(petAge);
+        this.daysStay = 0;
+        this.isCheckedIn = false;
+        this.grooming = grooming;
+        this.amountDue = 0.0;
+    }
+
+    // Getters and setters
+    public String getPetType() {
+        return petType;
+    }
+
+    public void setPetType(String petType) {
+        this.petType = petType;
+    }
+
+    public String getPetName() {
+        return petName;
+    }
+
+    public void setPetName(String petName) {
+        this.petName = petName;
+    }
+
+    public int getPetAge() {
+        return petAge;
+    }
+
+    public void setPetAge(int petAge) {
+        if (petAge < 0) {
+            throw new IllegalArgumentException("Age cannot be negative.");
+        }
+        this.petAge = petAge;
+    }
+
+    public double getPetWeight() {
+        return petWeight;
+    }
+
+    public void setPetWeight(double petWeight) {
+        if (petWeight < 0) {
+            throw new IllegalArgumentException("Weight cannot be negative.");
+        }
+        this.petWeight = petWeight;
+    }
+
+    public int getDaysStay() {
+        return daysStay;
+    }
+
+    public void setDaysStay(int daysStay) {
+        if (daysStay < 0) {
+            throw new IllegalArgumentException("Days stay cannot be negative.");
+        }
+        this.daysStay = daysStay;
+    }
+
+    public boolean isCheckedIn() {
+        return isCheckedIn;
+    }
+
+    public void checkIn() {
+        this.isCheckedIn = true;
+    }
+
+    public void checkout() {
+        this.isCheckedIn = false;
+        this.amountDue = this.calculateFees(); 
+    }
+
+    public double getAmountDue() {
+        return amountDue;
+    }
+
+    public void setAmountDue(double amountDue) {
+        this.amountDue = amountDue;
+    }
+
+    // Static methods for spaces
+    public static int getDogSpaces() {
+        return dogSpaces - occupiedDogSpaces;
+    }
+
+    public static int getOccupiedDogSpaces() {
+        return occupiedDogSpaces;
+    }
+
+    public static int getCatSpaces() {
+        return catSpaces - occupiedCatSpaces;
+    }
+
+    public static int getOccupiedCatSpaces() {
+        return occupiedCatSpaces;
+    }
+
+    // Calculate fees based on pet type
+    public double calculateFees() {
+        double dailyBoardingFee;
+
+        // Set daily boarding fee based on weight category
+        if (petType.equalsIgnoreCase("Dog")) {
+            if (petWeight >= 30) {
+                dailyBoardingFee = 34.00;
+            } else if (petWeight >= 20) {
+                dailyBoardingFee = 29.95;
+            } else {
+                dailyBoardingFee = 24.95;
+            }
+        } else if (petType.equalsIgnoreCase("Cat")) {
+            dailyBoardingFee = 19.95; // Fixed rate for cats
+        } else {
+            throw new IllegalArgumentException("Unknown pet type.");
+        }
+
+        // Calculate total fees
+        double totalFees = dailyBoardingFee * daysStay;
+
+        // Add grooming fee if applicable
+        if (grooming && daysStay >= 2) {
+            totalFees += (petType.equalsIgnoreCase("Cat")) ? 15.00 : 29.00; // Different grooming fee for cats and dogs
+        }
+
+        this.amountDue = totalFees; 
+        return totalFees;
+    }
+
+    public boolean checkInPet() {
+        if (petType.equalsIgnoreCase("Dog") && occupiedDogSpaces < dogSpaces) {
+            occupiedDogSpaces++;
+            checkIn();
+            return true; // Successfully checked in
+        } else if (petType.equalsIgnoreCase("Cat") && occupiedCatSpaces < catSpaces) {
+            occupiedCatSpaces++;
+            checkIn();
+            return true; // Successfully checked in
+        }
+        return false; // No available space
+    }
+
+    public void checkoutPet() {
+        checkout();
+        if (petType.equalsIgnoreCase("Dog")) {
+            occupiedDogSpaces--; // Decrease occupied dog space count
+        } else if (petType.equalsIgnoreCase("Cat")) {
+            occupiedCatSpaces--; // Decrease occupied cat space count
+        }
+    }
+}
